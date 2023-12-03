@@ -227,8 +227,8 @@ class ArithmeticOpAST(BinaryOpAST):
         if self.left.check_type(te) is not StdType.Int or self.right.check_type(te) is not StdType.Int:
             raise TypeError(
                 'The both arguments must be Int type to be valids.')
-        else:
-            return StdType.Int
+
+        return StdType.Int
 
 
 class ComparisonOpAST(BinaryOpAST):
@@ -261,6 +261,9 @@ class IdentifierAST(IAST):
         self.name = name
 
     def check_type(self, te) -> str:
+        if self.name == 'self':
+            return te.type
+
         return te.get_object_type(self.name)
 
 
