@@ -112,9 +112,15 @@ class BlockExpressionAST(IAST):
 
     def check_type(self, te) -> str:
         clone = te.clone()
+
+        last_type = None
         for exp in self.expr_list:
-            exp.check_type(clone)
-        return self.expr_list[-1].check_type(clone)
+            last_type = exp.check_type(clone)
+
+        if last_type == None:
+            return StdType.Object
+
+        return last_type
 
 
 class VarsInitAST(IAST):
