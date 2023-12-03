@@ -60,7 +60,7 @@ class VarMutationAST(IAST):
 
     def check_type(self, te) -> str:
         var_type = te.get_object_type(self.name)
-        parent_type = self.value.check_type(te.clone())
+        parent_type = self.value.check_type(te)
         if inherits(var_type, parent_type):
             return parent_type
         else:
@@ -111,11 +111,9 @@ class BlockExpressionAST(IAST):
         self.expr_list = expr_list
 
     def check_type(self, te) -> str:
-        clone = te.clone()
-
         last_type = None
         for exp in self.expr_list:
-            last_type = exp.check_type(clone)
+            last_type = exp.check_type(te)
 
         if last_type == None:
             return StdType.Object
@@ -158,16 +156,19 @@ class TypeMatchingAST(IAST):
     def check_type(self, te) -> str:
         self._normalize(te)
 
-        cases_type = []
-        for case in self.cases:
+        case_types = []
+        expr_types = []
+        for name, type, expr in self.cases:
             clone = te.clone()
-            clone.set_object_type(case[0], case[1])
-            case[2].check_type(clone)
-            if not case[1] in cases_type:
-                cases_type.append(case[1])
+            clone.set_object_type(name, type)
+            expr_types.append(expr.check_type(clone))
+
+            if not type in case_types:
+                case_types.append(type)
             else:
-                raise Exception(f'Only one case must have a {case[1]} type.')
-        return union_type(cases_type)
+                raise Exception(f'Only one case must have a {type} type.')
+
+        return union_type(expr_types)
 
     def _normalize(self, te: TypeEnvironment):
         self.cases = [(name, normalize(type, te), expr)
