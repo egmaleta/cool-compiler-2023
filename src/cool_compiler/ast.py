@@ -112,7 +112,7 @@ class BlockExpressionAST(IAST):
 
     def check_type(self, te) -> str:
         clone = te.clone()
-        for exp in self.expr_list: 
+        for exp in self.expr_list:
             exp.check_type(clone)
         return self.expr_list[-1].check_type(clone)
 
@@ -153,7 +153,7 @@ class TypeMatchingAST(IAST):
 
     def check_type(self, te) -> str:
         cases_type = []
-        
+
         for case in self.cases:
             clone = te.clone()
             clone.set_object_type(case[0], case[1])
@@ -233,14 +233,19 @@ class ArithmeticOpAST(BinaryOpAST):
 
 class ComparisonOpAST(BinaryOpAST):
     def check_type(self, te) -> str:
+        left_type = self.left.check_type(te)
+        right_type = self.right.check_type(te)
+
         if self.op[0] is '=':
-            self.left.check_type()
-            self.right.check_type()
-            return StdType.Bool
-        elif self.left.check_type() is not StdType.Int or self.right.check_type() is not StdType.Int:
+            if left_type == right_type:
+                return StdType.Bool
+
+            raise Exception('')
+
+        if self.left.check_type() is not StdType.Int or self.right.check_type() is not StdType.Int:
             raise TypeError('Both arguments must be Int,')
-        else:
-            return StdType.Bool
+
+        return StdType.Bool
 
 
 class GroupingAST(IAST):
