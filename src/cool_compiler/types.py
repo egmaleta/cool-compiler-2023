@@ -28,6 +28,9 @@ class TypeEnvironment:
         raise Exception('')
 
     def set_object_type(self, name: str, type: str):
+        if name in self._object_types:
+            raise Exception('')
+
         self._object_types[name] = type
 
     def get_method_type(self, name: str) -> Tuple[List[str], str]:
@@ -40,6 +43,9 @@ class TypeEnvironment:
         raise Exception('')
 
     def set_method_type(self, name: str, param_types: List[str], return_type: str):
+        if name in self._method_types:
+            raise Exception('')
+
         self._method_types[name] = (param_types, return_type)
 
     def child(self):
