@@ -56,7 +56,16 @@ class FunctionDeclarationFeatureAST(IAST):
         self.body = body
 
     def check_type(self, te) -> str:
-        self.body.check_type(te)
+        te.set_method_type(
+            self.name,
+            [type for _, type in self.params],
+            self.type
+        )
+
+        body_type = self.body.check_type(te)
+        if not inherits(body_type, self.type):
+            raise Exception('')
+
         return self.type
 
 
