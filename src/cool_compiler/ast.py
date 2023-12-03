@@ -60,11 +60,12 @@ class VarMutationAST(IAST):
 
     def check_type(self, te) -> str:
         var_type = te.get_object_type(self.name)
-        parent_type = self.value.check_type(te)
-        if inherits(var_type, parent_type):
-            return parent_type
-        else:
-            return var_type
+        value_type = self.value.check_type(te)
+
+        if inherits(value_type, var_type):
+            return value_type
+
+        raise Exception('')
 
 
 class FunctionCallAST(IAST):
