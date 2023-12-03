@@ -11,34 +11,39 @@ class StdType:
 
 
 class TypeEnvironment:
-    def __init__(self, type: str):
+    def __init__(self, type: str, parent: Optional['TypeEnvironment'] = None):
         self.type = type
         self._object_types: Mapping[str, str] = {}
         self._method_types: Mapping[str, Tuple[List[str], str]] = {}
 
-    def get_object_type(self, name: str):
-        return self._object_types.get(name)
+        self._parent = parent
+
+    def get_object_type(self, name: str) -> str:
+        if name in self._object_types:
+            return self._object_types[name]
+
+        if self._parent != None:
+            return self._parent.get_object_type(name)
+
+        raise Exception('')
 
     def set_object_type(self, name: str, type: str):
         self._object_types[name] = type
 
-    def get_method_type(self, name: str):
-        return self._method_types.get(name)
+    def get_method_type(self, name: str) -> Tuple[List[str], str]:
+        if name in self._method_types:
+            return self._method_types[name]
+
+        if self._parent != None:
+            return self._parent.get_method_type(name)
+
+        raise Exception('')
 
     def set_method_type(self, name: str, type: str):
         self._method_types[name] = type
 
-    def clone(self):
-        te = TypeEnvironment(self.type)
-
-        te._object_types = dict(**self._object_types)
-        for key, value in self._method_types.items():
-            te._method_types[key] = (
-                value[0].copy(),
-                value[1]
-            )
-
-        return te
+    def child(self):
+        return TypeEnvironment(self.type, self)
 
 
 _TYPE_TO_TE: Mapping[str, 'TypeEnvironment'] = {}

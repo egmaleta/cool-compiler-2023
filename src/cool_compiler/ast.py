@@ -137,7 +137,7 @@ class VarsInitAST(IAST):
     def check_type(self, te) -> str:
         self._normalize(te)
 
-        extended_te = te.clone()
+        extended_te = te.child()
         for name, type, value in self.var_init_list:
             # type check if init value can be assigned to
             # variable within 'te'
@@ -167,7 +167,7 @@ class TypeMatchingAST(IAST):
         case_types = []
         expr_types = []
         for name, type, expr in self.cases:
-            clone = te.clone()
+            clone = te.child()
             clone.set_object_type(name, type)
             expr_types.append(expr.check_type(clone))
 
