@@ -39,8 +39,8 @@ class TypeEnvironment:
 
         raise Exception('')
 
-    def set_method_type(self, name: str, type: str):
-        self._method_types[name] = type
+    def set_method_type(self, name: str, param_types: List[str], return_type: str):
+        self._method_types[name] = (param_types, return_type)
 
     def child(self):
         return TypeEnvironment(self.type, self)
