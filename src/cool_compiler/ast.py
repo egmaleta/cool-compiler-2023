@@ -32,6 +32,13 @@ class VarInitFeatureAST(IAST):
         self.value = value
 
     def check_type(self, te) -> str:
+        te.set_object_type(self.name, self.type)
+
+        if self.value != None:
+            value_type = self.value.check_type(te)
+            if not inherits(value_type, self.type):
+                raise Exception('')
+
         return self.type
 
 
