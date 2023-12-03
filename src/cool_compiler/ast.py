@@ -140,10 +140,8 @@ class VarsInitAST(IAST):
         return self.body.check_type(extended_te)
 
     def _normalize(self, te: TypeEnvironment):
-        self.var_init_list = map(
-            lambda t: (t[0], normalize(t[1], te), t[2]),
-            self.var_init_list
-        )
+        self.var_init_list = [(name, normalize(type, te), expr)
+                              for name, type, expr in self.var_init_list]
 
 
 class TypeMatchingAST(IAST):
