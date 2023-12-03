@@ -156,8 +156,9 @@ class TypeMatchingAST(IAST):
         self.cases = cases  # tuple is (object id, object type, expr)
 
     def check_type(self, te) -> str:
-        cases_type = []
+        self._normalize(te)
 
+        cases_type = []
         for case in self.cases:
             clone = te.clone()
             clone.set_object_type(case[0], case[1])
@@ -167,6 +168,10 @@ class TypeMatchingAST(IAST):
             else:
                 raise Exception(f'Only one case must have a {case[1]} type.')
         return union_type(cases_type)
+
+    def _normalize(self, te: TypeEnvironment):
+        self.cases = [(name, normalize(type, te), expr)
+                      for name, type, expr in self.cases]
 
 
 class ObjectInitAST(IAST):
@@ -246,7 +251,7 @@ class ComparisonOpAST(BinaryOpAST):
 
             raise Exception('')
 
-        if self.left.check_type() is not StdType.Int or self.right.check_type() is not StdType.Int:
+        if left_type is not StdType.Int or right_type is not StdType.Int:
             raise TypeError('Both arguments must be Int,')
 
         return StdType.Bool
