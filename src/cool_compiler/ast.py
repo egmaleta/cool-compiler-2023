@@ -80,17 +80,17 @@ class FunctionCallAST(IAST):
 
 class ConditionalExpressionAST(IAST):
     def __init__(self, condition: IAST, then_expr: IAST, else_expr: IAST):
-        self.condition = condition  # type: IAST
-        self.then_expr = then_expr  # type: IAST
-        self.else_expr = else_expr  # type: IAST
+        self.condition = condition
+        self.then_expr = then_expr
+        self.else_expr = else_expr
 
     def check_type(self, te) -> str:
         if self.condition.check_type(te) is not StdType.Bool:
             raise Exception('Condition must be Bool type')
-        else:
-            true = self.then_expr.check_type(te)
-            false = self.else_expr.check_type(te)
-            return union_type([true, false])
+
+        true = self.then_expr.check_type(te)
+        false = self.else_expr.check_type(te)
+        return union_type([true, false])
 
 
 class LoopExpressionAST(IAST):
@@ -99,7 +99,7 @@ class LoopExpressionAST(IAST):
         self.body = body
 
     def check_type(self, te) -> str:
-        if self.condition.check_type(te) != 'Bool':
+        if self.condition.check_type(te) != StdType.Bool:
             raise Exception('Loop condition must be a boolean.')
         else:
             self.body.check_type(te)
