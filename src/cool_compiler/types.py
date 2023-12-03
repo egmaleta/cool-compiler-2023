@@ -84,32 +84,35 @@ def inherits(type: str, parent_type: str):
     return False
 
 
+def _repeated(types: List[str]):
+    if len(types) == 0:
+        return False
+
+    first, *rest = types
+    return all([type == first for type in rest])
+
+
 def union_type(types: List[str]):
     type_set = set(types)
     if len(type_set) == 1:
         return type_set.pop()
 
-    ancestors_list = []
+    families = []
 
     for type in type_set:
-        ancestors = deque()
+        family = deque()
 
         t = type
-        while True:
-            parent = _TYPE_TO_PARENTTYPE.get(t)
-            if parent != None:
-                ancestors.appendleft(parent)
-                t = parent
-            else:
-                break
+        while t != None and t != StdType.Object:
+            family.appendleft(t)
+            t = _TYPE_TO_PARENTTYPE.get(t)
 
-        ancestors_list.append(ancestors)
+        families.append(family)
 
     least_type: Optional[str] = None
-    for types in zip(*ancestors_list):
-        type_set = set(types)
-        if len(type_set) == 1:
-            least_type = type_set.pop()
+    for types in zip(*families):
+        if _repeated(types):
+            least_type = types[0]
         else:
             break
 
