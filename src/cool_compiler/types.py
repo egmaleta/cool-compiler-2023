@@ -121,3 +121,18 @@ def union_type(types: List[str]):
 
 def normalize(type: str, te: TypeEnvironment):
     return type if type != _SELF_TYPE else te.type
+
+
+def is_std_type(type: str):
+    return type == StdType.Bool\
+        or type == StdType.Int\
+        or type == StdType.String\
+        or type == StdType.IO\
+        or type == StdType.Object
+
+
+def is_inheritable(type: str):
+    return type != _SELF_TYPE\
+        and type != StdType.Bool\
+        and type != StdType.Int\
+        and type != StdType.String

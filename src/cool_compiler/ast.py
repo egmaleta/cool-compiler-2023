@@ -1,7 +1,11 @@
 from abc import ABCMeta, abstractmethod
 from typing import List, Tuple, Optional
 
-from .types import StdType, TypeEnvironment, inherits, normalize, union_type
+from .types import (
+    StdType, TypeEnvironment,
+    inherits, normalize, union_type, is_std_type, is_inheritable, make_inherit, type_env_of,
+    _SELF_TYPE
+)
 
 
 class IAST(ABCMeta):
@@ -22,7 +26,25 @@ class ClassDeclarationAST(IAST):
         self.features = features
 
     def check_type(self, te) -> str:
-        raise NotImplementedError()
+        if not is_inheritable(self.inherited_type):
+            raise Exception('')
+
+        make_inherit(self.type, self.inherited_type)
+
+        for feat in self.features:
+            feat.check_type(te)
+
+        return self.type
+
+    def init_typecheck(self):
+        if self.type == _SELF_TYPE:
+            raise Exception('')
+
+        if is_std_type(self.type):
+            raise Exception('')
+
+        te = type_env_of(self.type)
+        return self.check_type(te)
 
 
 class VarInitFeatureAST(IAST):
