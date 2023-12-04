@@ -6,11 +6,16 @@ from .types import (
     inherits, normalize, union_type, is_std_type, is_inheritable, make_inherit, type_env_of,
     _SELF_TYPE
 )
+from .scope import Scope
 
 
 class IAST(ABCMeta):
     @abstractmethod
     def check_type(self, te: TypeEnvironment) -> str:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def execute(self, s: Scope):
         raise NotImplementedError()
 
 
@@ -325,12 +330,21 @@ class BooleanAST(LiteralAST):
     def check_type(self, _) -> str:
         return StdType.Bool
 
+    def execute(self, _):
+        return self.value == 'true'
+
 
 class StringAST(LiteralAST):
     def check_type(self, _) -> str:
         return StdType.String
 
+    def execute(self, _):
+        return self.value
+
 
 class IntAST(LiteralAST):
     def check_type(self, _) -> str:
         return StdType.Int
+
+    def execute(self, _):
+        return int(self.value)
