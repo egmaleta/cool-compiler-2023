@@ -237,9 +237,16 @@ class UnaryOpAST(IAST):
         self.expr = expr
 
 
+_VOID_VALUES = (0, "", False)
+
+
 class VoidCheckingOpAST(UnaryOpAST):
     def check_type(self, _) -> str:
         return StdType.Bool
+
+    def execute(self, s: Scope):
+        value = self.expr.execute(s)
+        return value in _VOID_VALUES
 
 
 class NegationOpAST(UnaryOpAST):
@@ -249,6 +256,9 @@ class NegationOpAST(UnaryOpAST):
 
         raise Exception('')
 
+    def execute(self, s: Scope):
+        return ~self.expr.execute(s)
+
 
 class BooleanNegationOpAST(UnaryOpAST):
     def check_type(self, te) -> str:
@@ -256,6 +266,9 @@ class BooleanNegationOpAST(UnaryOpAST):
             return StdType.Bool
 
         raise Exception('')
+
+    def execute(self, s: Scope):
+        return not self.expr.execute(s)
 
 
 BINARY_OPERATIONS = {
@@ -274,6 +287,13 @@ class BinaryOpAST(IAST):
         self.left = left
         self.right = right
         self.op = (op, BINARY_OPERATIONS[op])
+
+    def execute(self, s: Scope):
+        op = self.op[1]
+        left_value = self.left.execute(s)
+        right_value = self.right.execute(s)
+
+        return op(left_value, right_value)
 
 
 class ArithmeticOpAST(BinaryOpAST):
@@ -308,6 +328,9 @@ class GroupingAST(IAST):
 
     def check_type(self, te) -> str:
         return self.expr.check_type(te)
+
+    def execute(self, s: Scope):
+        return self.expr.execute(s)
 
 
 _SELF = 'self'
