@@ -51,6 +51,10 @@ class ClassDeclarationAST(IAST):
         te = type_env_of(self.type)
         return self.check_type(te)
 
+    def execute(self, s: Scope):
+        # HOT
+        raise NotImplementedError()
+
 
 class VarInitFeatureAST(IAST):
     def __init__(self, name: str, type: str, value: Optional[IAST]):
@@ -67,6 +71,10 @@ class VarInitFeatureAST(IAST):
                 raise Exception('')
 
         return self.type
+
+    def execute(self, s: Scope):
+        # HOT
+        raise NotImplementedError()
 
 
 class FunctionDeclarationFeatureAST(IAST):
@@ -95,6 +103,10 @@ class FunctionDeclarationFeatureAST(IAST):
 
         return self.type
 
+    def execute(self, s: Scope):
+        # HOT
+        raise NotImplementedError()
+
 
 class VarMutationAST(IAST):
     def __init__(self, name: str, value: IAST):
@@ -110,6 +122,10 @@ class VarMutationAST(IAST):
 
         raise Exception('')
 
+    def execute(self, s: Scope):
+        # HOT
+        raise NotImplementedError()
+
 
 class FunctionCallAST(IAST):
     def __init__(self, name: str, args: List[IAST], owner: Optional[IAST] = None, owner_as_type: Optional[str] = None):
@@ -119,6 +135,10 @@ class FunctionCallAST(IAST):
         self.owner_as_type = owner_as_type
 
     def check_type(self, te) -> str:
+        raise NotImplementedError()
+
+    def execute(self, s: Scope):
+        # HOT
         raise NotImplementedError()
 
 
@@ -136,6 +156,12 @@ class ConditionalExpressionAST(IAST):
         false = self.else_expr.check_type(te)
         return union_type([true, false])
 
+    def execute(self, s: Scope):
+        if self.condition.execute(s):
+            return self.then_expr.execute(s)
+
+        return self.else_expr.execute(s)
+
 
 class LoopExpressionAST(IAST):
     def __init__(self, condition: IAST, body: IAST):
@@ -149,6 +175,14 @@ class LoopExpressionAST(IAST):
             self.body.check_type(te)
             return StdType.Object
 
+    def execute(self, s: Scope):
+        # TODO: what if condition is never met
+        last_value = None
+        while self.condition.execute(s):
+            last_value = self.body.execute(s)
+
+        return last_value
+
 
 class BlockExpressionAST(IAST):
     def __init__(self, expr_list: List[IAST]):
@@ -159,10 +193,18 @@ class BlockExpressionAST(IAST):
         for exp in self.expr_list:
             last_type = exp.check_type(te)
 
-        if last_type == None:
-            return StdType.Object
-
+        # last_value != None because the parser
+        # ensures there is at least one sub expr
         return last_type
+
+    def execute(self, s: Scope):
+        last_value = None
+        for expr in self.expr_list:
+            last_value = expr.execute(s)
+
+        # last_value != None because the parser
+        # ensures there is at least one sub expr
+        return last_value
 
 
 class VarsInitAST(IAST):
@@ -191,6 +233,10 @@ class VarsInitAST(IAST):
         self.var_init_list = [(name, normalize(type, te), expr)
                               for name, type, expr in self.var_init_list]
 
+    def execute(self, s: Scope):
+        # HOT
+        raise NotImplementedError()
+
 
 class TypeMatchingAST(IAST):
     def __init__(self, expr: IAST, cases: List[Tuple[str, str, IAST]]):
@@ -218,6 +264,10 @@ class TypeMatchingAST(IAST):
         self.cases = [(name, normalize(type, te), expr)
                       for name, type, expr in self.cases]
 
+    def execute(self, s: Scope):
+        # HOT
+        raise NotImplementedError()
+
 
 class ObjectInitAST(IAST):
     def __init__(self, type: str):
@@ -230,6 +280,10 @@ class ObjectInitAST(IAST):
 
     def _normalize(self, te: TypeEnvironment):
         self.type = normalize(self.type, te)
+
+    def execute(self, s: Scope):
+        # HOT
+        raise NotImplementedError()
 
 
 class UnaryOpAST(IAST):
