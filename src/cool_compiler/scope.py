@@ -2,9 +2,11 @@ from typing import Optional
 
 
 class Scope:
-    def __init__(self, parent: Optional['Scope'] = None):
+    def __init__(self, self_value, parent: Optional['Scope'] = None):
         self._vars = {}
         self._functions = {}
+
+        self.self_value = self_value
 
         self._parent = parent
 
@@ -42,4 +44,4 @@ class Scope:
         raise Exception('')
 
     def child(self):
-        return Scope(self)
+        return Scope(self.self_value, self)

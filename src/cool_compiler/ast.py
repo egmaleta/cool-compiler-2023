@@ -310,15 +310,24 @@ class GroupingAST(IAST):
         return self.expr.check_type(te)
 
 
+_SELF = 'self'
+
+
 class IdentifierAST(IAST):
     def __init__(self, name: str):
         self.name = name
 
     def check_type(self, te) -> str:
-        if self.name == 'self':
+        if self.name == _SELF:
             return te.type
 
         return te.get_object_type(self.name)
+
+    def execute(self, s: Scope):
+        if self.name == _SELF:
+            return s.self_value
+
+        return s.get_var(self.name)
 
 
 class LiteralAST(IAST):
